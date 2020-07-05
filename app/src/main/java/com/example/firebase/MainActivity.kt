@@ -1,10 +1,12 @@
 package com.example.firebase
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,38 @@ class MainActivity : AppCompatActivity() {
 
         btnLogin.setOnClickListener {
             loginUser()
+        }
+
+        btnUpdateProfile.setOnClickListener {
+            updateProfile()
+        }
+    }
+
+
+    private fun updateProfile() {
+        val user = auth.currentUser
+        user?.let { user ->
+            val username = etUsername.text.toString()
+            val photoURI = Uri.parse("android.resource://$packageName/${R.drawable.profpic}")
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(username)
+                .setPhotoUri(photoURI)
+                .build()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    user.updateProfile(profileUpdates).await()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Successfully updated profile",
+                            Toast.LENGTH_LONG).show()
+                    }
+                } catch(e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+
+            }
         }
     }
 
@@ -79,9 +113,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkLoggedInState() {
         if (auth.currentUser == null) { // not logged in
-            tvLoggedIn.text = "You are not logged in"
-        } else {
-            tvLoggedIn.text = "You are logged in!"
+            val user = auth.currentUser
+            if (user == null) { // not logged in
+                tvLoggedIn.text = "You are not logged in"
+            } else {
+                tvLoggedIn.text = "You are logged in!"
+                etUsername.setText(user.displayName)
+                ivProfilePicture.setImageURI(user.photoUrl)
+            }
         }
     }
 
