@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         val user = auth.currentUser
         user?.let { user ->
             val username = etUsername.text.toString()
-            val photoURI = Uri.parse("android.resource://$packageName/${R.drawable.ic_android_black}")
+            val photoURI = Uri.parse("android.resource://$packageName/${R.drawable.ic_child_care_black}")
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(username)
                 .setPhotoUri(photoURI)
@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     user.updateProfile(profileUpdates).await()
                     withContext(Dispatchers.Main) {
+                        checkLoggedInState()
                         Toast.makeText(
                             this@MainActivity, "Successfully updated profile",
                             Toast.LENGTH_LONG
