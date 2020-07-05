@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-      //  auth.signOut()
+        //  auth.signOut()
 
         btnRegister.setOnClickListener {
             registerUser()
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         val user = auth.currentUser
         user?.let { user ->
             val username = etUsername.text.toString()
-            val photoURI = Uri.parse("android.resource://$packageName/${R.drawable.profpic}")
+            val photoURI = Uri.parse("android.resource://$packageName/${R.drawable.ic_android_black}")
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(username)
                 .setPhotoUri(photoURI)
@@ -53,19 +53,21 @@ class MainActivity : AppCompatActivity() {
                 try {
                     user.updateProfile(profileUpdates).await()
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "Successfully updated profile",
-                            Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@MainActivity, "Successfully updated profile",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-                } catch(e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
-                    }
+                } catch (e: Exception) {
+                    Log.i("AppMainActivity", e.message.toString())
+                    //withContext(Dispatchers.Main) {
+                     //   Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                   // }
                 }
 
             }
         }
     }
-
 
 
     private fun registerUser() {
@@ -112,15 +114,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkLoggedInState() {
-        if (auth.currentUser == null) { // not logged in
-            val user = auth.currentUser
-            if (user == null) { // not logged in
-                tvLoggedIn.text = "You are not logged in"
-            } else {
-                tvLoggedIn.text = "You are logged in!"
-                etUsername.setText(user.displayName)
-                ivProfilePicture.setImageURI(user.photoUrl)
-            }
+        val user = auth.currentUser
+        if (user == null) { // not logged in
+            tvLoggedIn.text = "You are not logged in"
+        } else {
+            tvLoggedIn.text = "You are logged in!"
+            etUsername.setText(user.displayName)
+            ivProfilePicture.setImageURI(user.photoUrl)
+
         }
     }
 
